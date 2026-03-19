@@ -1,0 +1,23 @@
+# Maven build output
+target/
+*.jar
+*.war
+
+# IntelliJ files
+.idea/
+*.iml
+
+# Local properties with secrets
+*.local.properties
+application-local.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node modules (frontend)
+node_modules/
+build/
+```
+```
+6. Ctrl+S to save
