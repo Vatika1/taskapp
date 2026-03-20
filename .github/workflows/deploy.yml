@@ -1,0 +1,85 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 674326380423.dkr.ecr.us-east-1.amazonaws.com
+  ECS_CLUSTER: taskapp-cluster
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # ── AUTH SERVICE ──
+      - name: Test auth-service
+        run: mvn test -f auth-service/auth-service/pom.xml
+
+      - name: Build & push auth-service
+        run: |
+          docker build -t $ECR_REGISTRY/auth-service:${{ github.sha }} auth-service/auth-service
+          docker push $ECR_REGISTRY/auth-service:${{ github.sha }}
+
+      - name: Deploy auth-service to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service auth-service \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      # ── TASK SERVICE ──
+      - name: Test task-service
+        run: mvn test -f task-service/task-service/pom.xml
+
+      - name: Build & push task-service
+        run: |
+          docker build -t $ECR_REGISTRY/task-service:${{ github.sha }} task-service/task-service
+          docker push $ECR_REGISTRY/task-service:${{ github.sha }}
+
+      - name: Deploy task-service to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service task-service \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      # ── API GATEWAY ──
+      - name: Test api-gateway
+        run: mvn test -f api-gateway/api-gateway/pom.xml
+
+      - name: Build & push api-gateway
+        run: |
+          docker build -t $ECR_REGISTRY/api-gateway:${{ github.sha }} api-gateway/api-gateway
+          docker push $ECR_REGISTRY/api-gateway:${{ github.sha }}
+
+      - name: Deploy api-gateway to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service api-gateway \
+            --force-new-deployment \
+            --region $AWS_REGION
