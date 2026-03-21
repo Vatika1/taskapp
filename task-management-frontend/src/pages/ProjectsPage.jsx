@@ -32,7 +32,7 @@ export default function ProjectsPage() {
   const fetchProjects = async () => {
     try {
       const response = await api.get('/api/projects?page=0&size=20');
-      setProjects(response.data.content);
+      setProjects(response.data.content || []);
     } catch (err) {
       setError('Failed to load projects');
     } finally {
