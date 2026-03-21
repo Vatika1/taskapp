@@ -1,6 +1,4 @@
-version: '3.8'
 services:
-  
   mysql:
     image: mysql:8.0
     environment:
@@ -8,9 +6,14 @@ services:
       MYSQL_DATABASE: taskdb
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   auth-service:
-    build: ./Backend/auth-service/auth-service
+    build: ./auth-service/auth-service
     ports:
       - "8081:8081"
     environment:
@@ -18,11 +21,13 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: root
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy   # ← wait until MySQL is actually ready
 
   task-service:
-    build: ./Backend/task-service/task-service
+    build: ./task-service/task-service
     ports:
       - "8082:8082"
     environment:
@@ -30,11 +35,13 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: root
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy   # ← same here
 
   api-gateway:
-    build: ./Backend/api-gateway/api-gateway
+    build: ./api-gateway/api-gateway
     ports:
       - "8080:8080"
     environment:
