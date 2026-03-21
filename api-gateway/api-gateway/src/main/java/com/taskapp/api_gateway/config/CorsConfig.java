@@ -14,10 +14,15 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("https://app.taskapp.click");
         config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedMethod("*");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("PATCH");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
-        config.addExposedHeader("*");
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
