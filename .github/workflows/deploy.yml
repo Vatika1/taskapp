@@ -40,7 +40,7 @@ jobs:
       - name: Build & push auth-service
         run: |
           docker build -t $ECR_REGISTRY/auth-service:${{ github.sha }} auth-service/auth-service
-          docker push $ECR_REGISTRY/auth-service:${{ github.sha }}
+          docker tag $ECR_REGISTRY/auth-service:${{ github.sha }} $ECR_REGISTRY/auth-service:latest
           docker push $ECR_REGISTRY/auth-service:${{ github.sha }}
           docker push $ECR_REGISTRY/auth-service:latest
 
@@ -59,7 +59,7 @@ jobs:
       - name: Build & push task-service
         run: |
           docker build -t $ECR_REGISTRY/task-service:${{ github.sha }} task-service/task-service
-          docker push $ECR_REGISTRY/task-service:${{ github.sha }}
+          docker tag $ECR_REGISTRY/task-service:${{ github.sha }} $ECR_REGISTRY/task-service:latest
           docker push $ECR_REGISTRY/task-service:${{ github.sha }}
           docker push $ECR_REGISTRY/task-service:latest
 
@@ -78,7 +78,7 @@ jobs:
       - name: Build & push api-gateway
         run: |
           docker build -t $ECR_REGISTRY/api-gateway:${{ github.sha }} api-gateway/api-gateway
-          docker push $ECR_REGISTRY/api-gateway:${{ github.sha }}
+          docker tag $ECR_REGISTRY/api-gateway:${{ github.sha }} $ECR_REGISTRY/api-gateway:latest
           docker push $ECR_REGISTRY/api-gateway:${{ github.sha }}
           docker push $ECR_REGISTRY/api-gateway:latest
 
